@@ -2,6 +2,8 @@
 from events_app import db
 from sqlalchemy.orm import backref
 
+#adding note 
+
 # TODO: Create a model called `Guest` with the following fields:
 # - id: primary key
 # - name: String column

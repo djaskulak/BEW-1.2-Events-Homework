@@ -11,6 +11,11 @@ from sqlalchemy.orm import backref
 
 class Guest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), nullable=False)
+    email = db.Column(db.String(80), nullable=False, unique=True)
+    phone = db.Column(db.Integer, nullable=False, unique=True)
+    events_attending = db.relationship('Event', secondary='guest_events', back_populates="guests")
+    events_hosting = db.relationship('Event', secondary='events_created', back_populates="created_by")
 
 # TODO: Create a model called `Event` with the following fields:
 # - id: primary key
@@ -24,9 +29,22 @@ class Guest(db.Model):
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(80), nullable=False)
+    date_and_time = db.Column(db.DateTime(timezone=True))
+    guests = db.relationship('Guest', secondary = 'guest_events', back_populates="events_attending")
+    created_by = db.relationship('Guest', secondary= 'events_created', back_populates="events_hosting")
 
 # TODO: Create a table `guest_event_table` with the following columns:
 # - event_id: Integer column (foreign key)
 # - guest_id: Integer column (foreign key)
 
-guest_event_table = None
+guest_event_table = db.Table('guest_events',
+    db.Column('guest_id', db.Integer, db.ForeignKey('guest.id')),
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id'))
+)
+
+guest_event_created_table = db.Table('events_created',
+    db.Column('guest_id', db.Integer, db.ForeignKey('guest.id')),
+    db.Column('event_id', db.Integer, db.ForeignKey('event.id'))
+)

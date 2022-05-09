@@ -2,69 +2,84 @@
 
 {% block content %}
 
-<a href="/">Home</a>
+<a href="/">← Home</a>
 
 <!-- 
     TODO: Instead of the hard-coded values, use the event object to display the
     correct title, description, date, time, and number of guests
 -->
 
-<h1>Zoom Party!</h1>
+<div id="content-container">
+<h1 class="pt-4">{{event.title}}</h1>
 
-<p>Come join us for some fun zoom games!</p>
+<p class="py-2" id="event_desc">{{event.description}}</p>
 
-<p><strong>Date:</strong> Friday March 5, 2021</p>
-<p><strong>Time:</strong> 5:00 PM</p>
+<p><strong>Date:</strong> {{event.date_and_time.strftime('%A %B %d, %Y')}}</p>
+<p><strong>Time:</strong> {{event.date_and_time.strftime('%I:%M %p')}}</p>
 
-<p><strong>Number of Guests:</strong> 5</p>
+<p><strong>Number of Guests:</strong> {{event.guests|length}}</p>
 
-<form method="POST">
-    <fieldset>
-        <legend>RSVP</legend>
-        {% if error %}
-            <p class="error">{{ error }}</p>
-        {% endif %}
-        <p>
-            <label>
-                Your Name:
-                <input type="text" name="guest_name">
-            </label>
-        </p>
-        <p>
-            <label>
-                <input type="checkbox" name="returning" onchange="returningGuestChanged(this.checked)">
-                Returning Guest?
-            </label>
-        </p>
-        <div id="new-guest-info">
-            <p>
-                <label>
-                    Your Email Address:
-                    <input type="email" name="email">
-                </label>
-            </p>
-            <p>
-                <label>
-                    Your Phone Number:
-                    <input type="phone" name="phone">
-                </label>
-            </p>
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#RSVPModal">
+    Click Here to RSVP
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="RSVPModal" tabindex="-1" aria-labelledby="RSVPModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">RSVP To {{ event.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" id="rsvp">
+                    <fieldset>
+                        <p>
+                            <label>
+                                Your Name:
+                                <input type="text" name="guest_name">
+                            </label>
+                        </p>
+                        <p>
+                            <label>
+                                <input type="checkbox" name="returning" onchange="returningGuestChanged(this.checked)">
+                                Returning Guest?
+                            </label>
+                        </p>
+                        <div id="new-guest-info">
+                            <p>
+                                <label>
+                                    Your Email Address:
+                                    <input type="email" name="email">
+                                </label>
+                            </p>
+                            <p>
+                                <label>
+                                    Your Phone Number:
+                                    <input type="tel-national" name="phone">
+                                </label>
+                            </p>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" name="submit" value="RSVP" form="rsvp" class="btn btn-primary">RSVP</button>
+            </div>
         </div>
-        <p>
-            <input type="submit" name="submit" value="Add">
-        </p>
-    </fieldset>
-</form>
+    </div>
+</div>
 
 <!-- TODO: Display the actual guests attending -->
 
-<h2>Guests Attending:</h2>
+<h2 class="pt-4">Guests Attending:</h2>
 <ul>
-    
-    <li><a href="/guest/1">Meredith</a></li>
-    <li><a href="/guest/2">Dani</a></li>
-    <li><a href="/guest/3">Jordan</a></li>
-    <li><a href="/guest/4">Ducky</a></li>
+    {% for guest in event.guests %}
+        <li><a href="/guest/{{ guest.id }}">{{guest.name}}</a></li>
+    {% endfor %}
 </ul>
+</div>
 
 {% endblock %}

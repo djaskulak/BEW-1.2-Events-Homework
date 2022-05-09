@@ -9,7 +9,6 @@ from events_app import app, db
 
 main = Blueprint('main', __name__)
 
-
 ##########################################
 #           Routes                       #
 ##########################################
@@ -28,7 +27,6 @@ def index():
         print(type(event.date_and_time))
     
     return render_template('index.html', events=events)
-
 
 @main.route('/create', methods=['GET', 'POST'])
 def create():
@@ -64,18 +62,13 @@ def create():
 
 @main.route('/event/<event_id>', defaults={'error': None})
 @main.route('/event/<event_id>', methods=['GET'])
-def event_detail(event_id, error):
+def event_detail(event_id):
     """Show a single event."""
 
     # TODO: Get the event with the given id and send to the template
-    event = ""
-    try:
-        event = Event.query.filter_by(id=event_id).one()
-    except:
-        print("Sorry, but no events could be found.")
-
-    return render_template('event_detail.html', event=event, error=error)
-
+    event = Event.query.filter_by(id=event_id).one()
+    # print(f'error: {error}')
+    return render_template('event_detail.html', event=event)
 
 @main.route('/event/<event_id>', defaults={'error': None}, methods=['POST'])
 @main.route('/event/<event_id>/<error>', methods=['POST'])
@@ -98,23 +91,21 @@ def rsvp(event_id, error):
             print(error)
             return redirect(url_for("main.event_detail", event_id=event_id, error="Sorry, but you're not a returning guest! You need to register first."))
 
-        # TODO: If the guest does exist, add the event to their 
-        # events_attending, then commit to the database.
-
+    # TODO: If the guest does exist, add the event to their 
+    # events_attending, then commit to the database.
     else:
         guest_email = request.form.get('email')
         guest_phone = request.form.get('phone')
         guest = Guest(name=guest_name, email=guest_email, phone=guest_phone)
 
-        # TODO: Create a new guest with the given name, email, and phone, and 
-        # add the event to their events_attending, then commit to the database.
+    # TODO: Create a new guest with the given name, email, and phone, and 
+    # add the event to their events_attending, then commit to the database.
     guest.events_attending.append(event)
     db.session.add(guest)
     db.session.commit()
     
     flash('You have successfully RSVP\'d! See you there!')
     return redirect(url_for('main.event_detail', event_id=event_id))
-
 
 @main.route('/guest/<guest_id>')
 def guest_detail(guest_id):
